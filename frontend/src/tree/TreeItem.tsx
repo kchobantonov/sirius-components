@@ -66,17 +66,6 @@ const renameTreeItemMutation = gql`
   }
 `;
 
-const renameObjectMutation = gql`
-  mutation renameObject($input: RenameObjectInput!) {
-    renameObject(input: $input) {
-      __typename
-      ... on ErrorPayload {
-        message
-      }
-    }
-  }
-`;
-
 const renameRepresentationMutation = gql`
   mutation renameRepresentation($input: RenameRepresentationInput!) {
     renameRepresentation(input: $input) {
@@ -157,19 +146,6 @@ export const TreeItem = ({
       }
     }
   }, [renameRepresentationData, renameRepresentationError, renameRepresentationLoading]);
-
-  const [renameObject, { loading: renameObjectLoading, data: renameObjectData, error: renameObjectError }] =
-    useMutation(renameObjectMutation);
-  useEffect(() => {
-    if (!renameObjectLoading && !renameObjectError && renameObjectData?.renameObject) {
-      const { renameObject } = renameObjectData;
-      if (renameObject.__typename === 'RenameObjectSuccessPayload') {
-        setState((prevState) => {
-          return { ...prevState, editingMode: false };
-        });
-      }
-    }
-  }, [renameObjectData, renameObjectError, renameObjectLoading]);
 
   // custom hook for getting previous value
   const usePrevious = (value) => {
@@ -436,8 +412,10 @@ export const TreeItem = ({
             },
           });
         } else {
-          renameObject({
-            variables: { input: { id: uuid(), editingContextId, objectId: item.id, newName: label } },
+          renameTreeItem({
+            variables: {
+              input: { id: uuid(), editingContextId, treeItemId: item.id, kind: item.kind, newName: label },
+            },
           });
         }
       } else {
