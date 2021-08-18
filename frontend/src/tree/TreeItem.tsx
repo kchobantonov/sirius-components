@@ -55,9 +55,9 @@ const deleteRepresentationMutation = gql`
   }
 `;
 
-const renameDocumentMutation = gql`
-  mutation renameDocument($input: RenameDocumentInput!) {
-    renameDocument(input: $input) {
+const renameTreeItemMutation = gql`
+  mutation renameTreeItem($input: RenameTreeItemInput!) {
+    renameTreeItem(input: $input) {
       __typename
       ... on ErrorPayload {
         message
@@ -130,18 +130,18 @@ export const TreeItem = ({
   const refDom = useRef() as any;
   const { registry } = useContext(RepresentationContext);
 
-  const [renameDocument, { loading: renameDocumentLoading, data: renameDocumentData, error: renameDocumentError }] =
-    useMutation(renameDocumentMutation);
+  const [renameTreeItem, { loading: renameTreeItemLoading, data: renameTreeItemData, error: renameTreeItemError }] =
+    useMutation(renameTreeItemMutation);
   useEffect(() => {
-    if (!renameDocumentLoading && !renameDocumentError && renameDocumentData?.renameDocument) {
-      const { renameDocument } = renameDocumentData;
-      if (renameDocument.__typename === 'RenameDocumentSuccessPayload') {
+    if (!renameTreeItemLoading && !renameTreeItemError && renameTreeItemData?.renameTreeItem) {
+      const { renameTreeItem } = renameTreeItemData;
+      if (renameTreeItem.__typename === 'RenameTreeItemSuccessPayload') {
         setState((prevState) => {
           return { ...prevState, editingMode: false };
         });
       }
     }
-  }, [renameDocumentData, renameDocumentError, renameDocumentLoading]);
+  }, [renameTreeItemData, renameTreeItemError, renameTreeItemLoading]);
 
   const [
     renameRepresentation,
@@ -424,7 +424,11 @@ export const TreeItem = ({
       const isNameValid = label.length >= 1;
       if (isNameValid && item) {
         if (item.kind === 'Document') {
-          renameDocument({ variables: { input: { id: uuid(), documentId: item.id, newName: label } } });
+          renameTreeItem({
+            variables: {
+              input: { id: uuid(), editingContextId, treeItemId: item.id, kind: item.kind, newName: label },
+            },
+          });
         } else if (item?.kind === 'Diagram') {
           renameRepresentation({
             variables: {
