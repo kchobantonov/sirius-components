@@ -114,6 +114,7 @@ export const TreeItem = ({
     prevSelectionId: null,
   };
   const [state, setState] = useState(initialState);
+  const { x, y, showContextMenu, modalDisplayed, editingMode, label } = state;
   const [deleteObject] = useMutation(deleteObjectMutation);
   const [deleteRepresentation] = useMutation(deleteRepresentationMutation);
   const refDom = useRef() as any;
@@ -156,9 +157,18 @@ export const TreeItem = ({
     return ref.current;
   };
 
+  const prevEditingMode = usePrevious(editingMode);
+  useEffect(() => {
+    if (prevEditingMode && !editingMode) {
+      refDom.current.focus();
+    }
+  }, [editingMode, prevEditingMode]);
+
+  // START CONTEXT MENU
+
   const onMore = (event) => {
     const { x, y } = event.currentTarget.getBoundingClientRect();
-    if (!state.showContextMenu) {
+    if (!showContextMenu) {
       setState((prevState) => {
         return {
           modalDisplayed: prevState.modalDisplayed,
@@ -172,15 +182,6 @@ export const TreeItem = ({
       });
     }
   };
-
-  const { x, y, showContextMenu, modalDisplayed, editingMode, label } = state;
-
-  const prevEditingMode = usePrevious(editingMode);
-  useEffect(() => {
-    if (prevEditingMode && !editingMode) {
-      refDom.current.focus();
-    }
-  }, [editingMode, prevEditingMode]);
 
   let contextMenu = null;
   if (showContextMenu) {
@@ -357,6 +358,9 @@ export const TreeItem = ({
       );
     }
   }
+  // END CONTEXT MENU
+
+  // BEGIN MODALS
   const onCloseModal = () =>
     setState((prevState) => {
       return {
@@ -369,94 +373,6 @@ export const TreeItem = ({
         prevSelectionId: prevState.prevSelectionId,
       };
     });
-
-  let itemTitle = null;
-  let itemLabel = null;
-  if (item.kind === 'Document') {
-    itemLabel = item.label;
-    itemTitle = 'Model';
-  } else if (registry.isRepresentation(item.kind)) {
-    itemLabel = item.label;
-    itemTitle = item.kind;
-  } else {
-    if (item.label) {
-      itemLabel = item.label;
-    } else {
-      itemLabel = item.kind.split('::').pop();
-    }
-    itemTitle = item.kind;
-  }
-
-  let text;
-  if (editingMode) {
-    const handleChange = (event) => {
-      const newLabel = event.target.value;
-      setState((prevState) => {
-        return { ...prevState, editingMode: true, label: newLabel };
-      });
-    };
-
-    const doRename = () => {
-      const isNameValid = label.length >= 1;
-      if (isNameValid && item) {
-        if (item.kind === 'Document') {
-          renameTreeItem({
-            variables: {
-              input: { id: uuid(), editingContextId, treeItemId: item.id, kind: item.kind, newName: label },
-            },
-          });
-        } else if (item?.kind === 'Diagram') {
-          renameRepresentation({
-            variables: {
-              input: { id: uuid(), editingContextId, representationId: item.id, newLabel: label },
-            },
-          });
-        } else {
-          renameTreeItem({
-            variables: {
-              input: { id: uuid(), editingContextId, treeItemId: item.id, kind: item.kind, newName: label },
-            },
-          });
-        }
-      } else {
-        setState((prevState) => {
-          return { ...prevState, editingMode: false, label: item.label };
-        });
-      }
-    };
-    const onFinishEditing = (event) => {
-      const { key } = event;
-      if (key === 'Enter') {
-        doRename();
-      } else if (key === 'Escape') {
-        setState((prevState) => {
-          return { ...prevState, editingMode: false, label: item.label };
-        });
-      }
-    };
-    const onFocusIn = (event) => {
-      event.target.select();
-    };
-    const onFocusOut = (event) => {
-      doRename();
-    };
-    text = (
-      <Textfield
-        kind={'small'}
-        name="name"
-        placeholder={'Enter the new name'}
-        value={label}
-        onChange={handleChange}
-        onKeyDown={onFinishEditing}
-        onFocus={onFocusIn}
-        onBlur={onFocusOut}
-        autoFocus
-        data-testid="name-edit"
-      />
-    );
-  } else {
-    text = <Text className={styles.label}>{itemLabel}</Text>;
-  }
 
   let modal = null;
   if (modalDisplayed === 'DeleteDocument') {
@@ -555,6 +471,7 @@ export const TreeItem = ({
       />
     );
   }
+  // END MODALS
 
   let children = null;
   if (item.expanded) {
@@ -618,7 +535,93 @@ export const TreeItem = ({
   if (item.imageURL) {
     image = <img height="16" width="16" alt={item.kind} src={httpOrigin + item.imageURL}></img>;
   }
+  let itemTitle = null;
+  let itemLabel = null;
+  if (item.kind === 'Document') {
+    itemLabel = item.label;
+    itemTitle = 'Model';
+  } else if (registry.isRepresentation(item.kind)) {
+    itemLabel = item.label;
+    itemTitle = item.kind;
+  } else {
+    if (item.label) {
+      itemLabel = item.label;
+    } else {
+      itemLabel = item.kind.split('::').pop();
+    }
+    itemTitle = item.kind;
+  }
 
+  let text;
+  if (editingMode) {
+    const handleChange = (event) => {
+      const newLabel = event.target.value;
+      setState((prevState) => {
+        return { ...prevState, editingMode: true, label: newLabel };
+      });
+    };
+
+    const doRename = () => {
+      const isNameValid = label.length >= 1;
+      if (isNameValid && item) {
+        if (item.kind === 'Document') {
+          renameTreeItem({
+            variables: {
+              input: { id: uuid(), editingContextId, treeItemId: item.id, kind: item.kind, newName: label },
+            },
+          });
+        } else if (item?.kind === 'Diagram') {
+          renameRepresentation({
+            variables: {
+              input: { id: uuid(), editingContextId, representationId: item.id, newLabel: label },
+            },
+          });
+        } else {
+          renameTreeItem({
+            variables: {
+              input: { id: uuid(), editingContextId, treeItemId: item.id, kind: item.kind, newName: label },
+            },
+          });
+        }
+      } else {
+        setState((prevState) => {
+          return { ...prevState, editingMode: false, label: item.label };
+        });
+      }
+    };
+    const onFinishEditing = (event) => {
+      const { key } = event;
+      if (key === 'Enter') {
+        doRename();
+      } else if (key === 'Escape') {
+        setState((prevState) => {
+          return { ...prevState, editingMode: false, label: item.label };
+        });
+      }
+    };
+    const onFocusIn = (event) => {
+      event.target.select();
+    };
+    const onFocusOut = (event) => {
+      doRename();
+    };
+    text = (
+      <Textfield
+        kind={'small'}
+        name="name"
+        placeholder={'Enter the new name'}
+        value={label}
+        onChange={handleChange}
+        onKeyDown={onFinishEditing}
+        onFocus={onFocusIn}
+        onBlur={onFocusOut}
+        autoFocus
+        data-testid="name-edit"
+      />
+    );
+  } else {
+    text = <Text className={styles.label}>{itemLabel}</Text>;
+  }
   const onFocus = () => {
     const { id, label, kind } = item;
     setSelection({ id, label, kind });
