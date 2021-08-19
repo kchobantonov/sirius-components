@@ -95,6 +95,36 @@ const menuPositionDelta = {
   dy: -6,
 };
 
+const ItemArrow = ({ item, depth, onExpand }) => {
+  if (item.hasChildren) {
+    const onClick = () => onExpand(item.id, depth);
+    if (item.expanded) {
+      return (
+        <ArrowExpanded
+          title="Collapse"
+          className={styles.arrow}
+          width="20"
+          height="20"
+          onClick={onClick}
+          data-testid="expand"
+        />
+      );
+    } else {
+      return (
+        <ArrowCollapsed
+          title="Expand"
+          className={styles.arrow}
+          width="20"
+          height="20"
+          onClick={onClick}
+          data-testid="expand"
+        />
+      );
+    }
+  }
+  return null;
+};
+
 export const TreeItem = ({
   editingContextId,
   item,
@@ -504,33 +534,6 @@ export const TreeItem = ({
     dataTestid = 'selected';
   }
 
-  let arrow = null;
-  if (item.hasChildren) {
-    if (item.expanded) {
-      arrow = (
-        <ArrowExpanded
-          title="Collapse"
-          className={styles.arrow}
-          width="20"
-          height="20"
-          onClick={() => onExpand(item.id, depth)}
-          data-testid="expand"
-        />
-      );
-    } else {
-      arrow = (
-        <ArrowCollapsed
-          title="Expand"
-          className={styles.arrow}
-          width="20"
-          height="20"
-          onClick={() => onExpand(item.id, depth)}
-          data-testid="expand"
-        />
-      );
-    }
-  }
-
   let image = <NoIcon title={item.kind} />;
   if (item.imageURL) {
     image = <img height="16" width="16" alt={item.kind} src={httpOrigin + item.imageURL}></img>;
@@ -659,7 +662,7 @@ export const TreeItem = ({
         data-depth={depth}
         data-expanded={item.expanded.toString()}
         data-testid={dataTestid}>
-        {arrow}
+        <ItemArrow item={item} depth={depth} onExpand={onExpand} />
         <div className={styles.content}>
           <div
             className={styles.imageAndLabel}
