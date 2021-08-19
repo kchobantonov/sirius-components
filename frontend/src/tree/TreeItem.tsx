@@ -564,13 +564,7 @@ export const TreeItem = ({
     const doRename = () => {
       const isNameValid = label.length >= 1;
       if (isNameValid && item) {
-        if (item.kind === 'Document') {
-          renameTreeItem({
-            variables: {
-              input: { id: uuid(), editingContextId, treeItemId: item.id, kind: item.kind, newName: label },
-            },
-          });
-        } else if (item?.kind === 'Diagram') {
+        if (registry.isRepresentation(item?.kind)) {
           renameRepresentation({
             variables: {
               input: { id: uuid(), editingContextId, representationId: item.id, newLabel: label },
