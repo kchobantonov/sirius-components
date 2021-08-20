@@ -40,6 +40,12 @@ public final class ListDescription extends AbstractWidgetDescription {
 
     private Function<VariableManager, String> itemImageURLProvider;
 
+    private Function<VariableManager, Object> listItemActionProvider;
+
+    private Function<VariableManager, String> listItemActionTooltipProvider;
+
+    private Function<VariableManager, String> listItemActionIconNameProvider;
+
     private ListDescription() {
         // Prevent instantiation
     }
@@ -66,6 +72,18 @@ public final class ListDescription extends AbstractWidgetDescription {
 
     public Function<VariableManager, String> getItemImageURLProvider() {
         return this.itemImageURLProvider;
+    }
+
+    public Function<VariableManager, Object> getListItemActionProvider() {
+        return this.listItemActionProvider;
+    }
+
+    public Function<VariableManager, String> getListItemActionTooltipProvider() {
+        return this.listItemActionTooltipProvider;
+    }
+
+    public Function<VariableManager, String> getListItemActionIconNameProvider() {
+        return this.listItemActionIconNameProvider;
     }
 
     public static Builder newListDescription(String id) {
@@ -98,6 +116,12 @@ public final class ListDescription extends AbstractWidgetDescription {
         private Function<VariableManager, String> itemLabelProvider;
 
         private Function<VariableManager, String> itemImageURLProvider;
+
+        private Function<VariableManager, Object> listItemActionProvider;
+
+        private Function<VariableManager, String> listItemActionTooltipProvider;
+
+        private Function<VariableManager, String> listItemActionIconNameProvider;
 
         private Function<VariableManager, List<Object>> diagnosticsProvider;
 
@@ -139,6 +163,21 @@ public final class ListDescription extends AbstractWidgetDescription {
             return this;
         }
 
+        public Builder listItemActionProvider(Function<VariableManager, Object> listItemActionProvider) {
+            this.listItemActionProvider = Objects.requireNonNull(listItemActionProvider);
+            return this;
+        }
+
+        public Builder listItemActionTooltipProvider(Function<VariableManager, String> listItemActionTooltipProvider) {
+            this.listItemActionTooltipProvider = Objects.requireNonNull(listItemActionTooltipProvider);
+            return this;
+        }
+
+        public Builder listItemActionIconNameProvider(Function<VariableManager, String> listItemActionIconNameProvider) {
+            this.listItemActionIconNameProvider = Objects.requireNonNull(listItemActionIconNameProvider);
+            return this;
+        }
+
         public Builder diagnosticsProvider(Function<VariableManager, List<Object>> diagnosticsProvider) {
             this.diagnosticsProvider = Objects.requireNonNull(diagnosticsProvider);
             return this;
@@ -163,6 +202,9 @@ public final class ListDescription extends AbstractWidgetDescription {
             listDescription.itemIdProvider = Objects.requireNonNull(this.itemIdProvider);
             listDescription.itemLabelProvider = Objects.requireNonNull(this.itemLabelProvider);
             listDescription.itemImageURLProvider = Objects.requireNonNull(this.itemImageURLProvider);
+            listDescription.listItemActionProvider = Objects.requireNonNull(this.listItemActionProvider);
+            listDescription.listItemActionTooltipProvider = Objects.requireNonNull(this.listItemActionTooltipProvider);
+            listDescription.listItemActionIconNameProvider = Objects.requireNonNull(this.listItemActionIconNameProvider);
             listDescription.diagnosticsProvider = Objects.requireNonNull(this.diagnosticsProvider);
             listDescription.kindProvider = Objects.requireNonNull(this.kindProvider);
             listDescription.messageProvider = Objects.requireNonNull(this.messageProvider);

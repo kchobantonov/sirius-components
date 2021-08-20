@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019, 2020 Obeo.
+ * Copyright (c) 2019, 2021 Obeo.
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v2.0
  * which accompanies this distribution, and is available at
@@ -35,6 +35,8 @@ public final class ListItem {
 
     private String imageURL;
 
+    private ListItemAction action;
+
     private ListItem() {
         // Prevent instantiation
     }
@@ -56,6 +58,12 @@ public final class ListItem {
     @GraphQLNonNull
     public String getImageURL() {
         return this.imageURL;
+    }
+
+    @GraphQLField
+    @GraphQLNonNull
+    public ListItemAction getAction() {
+        return this.action;
     }
 
     public static Builder newListItem(String id) {
@@ -81,6 +89,8 @@ public final class ListItem {
 
         private String imageURL;
 
+        private ListItemAction action;
+
         private Builder(String id) {
             this.id = Objects.requireNonNull(id);
         }
@@ -95,11 +105,17 @@ public final class ListItem {
             return this;
         }
 
+        public Builder action(ListItemAction action) {
+            this.action = Objects.requireNonNull(action);
+            return this;
+        }
+
         public ListItem build() {
             ListItem listItem = new ListItem();
             listItem.id = Objects.requireNonNull(this.id);
             listItem.label = Objects.requireNonNull(this.label);
             listItem.imageURL = Objects.requireNonNull(this.imageURL);
+            listItem.action = Objects.requireNonNull(this.action);
             return listItem;
         }
     }

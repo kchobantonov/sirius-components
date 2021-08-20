@@ -18,6 +18,7 @@ import MuiCollapse from '@material-ui/core/Collapse';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import { PropertiesWebSocketContainer } from 'properties/PropertiesWebSocketContainer';
 import React from 'react';
+import { RepresentationsWebSocketContainer } from 'representations/RepresentationsWebSocketContainer';
 import { RightSiteProps } from './RightSite.types';
 
 const useSiteStyles = makeStyles((theme) => ({
@@ -78,10 +79,20 @@ export const RightSite = ({ editingContextId, selection, readOnly }: RightSitePr
 
   return (
     <div className={classes.site}>
-      <Accordion square expanded={true} TransitionComponent={CustomCollapse as any}>
+      <Accordion square expanded={false} TransitionComponent={CustomCollapse as any}>
         <AccordionSummary>Details</AccordionSummary>
         <AccordionDetails className={classes.accordionDetailsRoot} data-testid={'Details AccordionDetails'}>
           <PropertiesWebSocketContainer editingContextId={editingContextId} selection={selection} readOnly={readOnly} />
+        </AccordionDetails>
+      </Accordion>
+      <Accordion square expanded={true} TransitionComponent={CustomCollapse as any}>
+        <AccordionSummary>Representations</AccordionSummary>
+        <AccordionDetails className={classes.accordionDetailsRoot} data-testid={'Representations AccordionDetails'}>
+          <RepresentationsWebSocketContainer
+            editingContextId={editingContextId}
+            selection={selection}
+            readOnly={readOnly}
+          />
         </AccordionDetails>
       </Accordion>
     </div>

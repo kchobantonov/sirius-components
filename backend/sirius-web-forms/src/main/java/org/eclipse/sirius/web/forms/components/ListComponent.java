@@ -19,6 +19,7 @@ import java.util.Objects;
 import org.eclipse.sirius.web.components.Element;
 import org.eclipse.sirius.web.components.IComponent;
 import org.eclipse.sirius.web.forms.ListItem;
+import org.eclipse.sirius.web.forms.ListItemAction;
 import org.eclipse.sirius.web.forms.description.ListDescription;
 import org.eclipse.sirius.web.forms.elements.ListElementProps;
 import org.eclipse.sirius.web.forms.validation.DiagnosticComponent;
@@ -31,6 +32,8 @@ import org.eclipse.sirius.web.representations.VariableManager;
  * @author sbegaudeau
  */
 public class ListComponent implements IComponent {
+
+    public static final String ACTION_VARIABLE = "action"; //$NON-NLS-1$
 
     public static final String CANDIDATE_VARIABLE = "candidate"; //$NON-NLS-1$
 
@@ -60,10 +63,22 @@ public class ListComponent implements IComponent {
             String itemLabel = listDescription.getItemLabelProvider().apply(itemVariableManager);
             String itemImageURL = listDescription.getItemImageURLProvider().apply(itemVariableManager);
 
+            Object listItemAction = listDescription.getListItemActionProvider().apply(itemVariableManager);
+            VariableManager itemActionVariableManager = itemVariableManager.createChild();
+            itemActionVariableManager.put(ACTION_VARIABLE, listItemAction);
+            String listItemActionTooltip = listDescription.getListItemActionTooltipProvider().apply(itemActionVariableManager);
+            String listItemActionIconName = listDescription.getListItemActionIconNameProvider().apply(itemActionVariableManager);
+
             // @formatter:off
+            ListItemAction itemAction = ListItemAction.newListItemAction()
+                    .tooltip(listItemActionTooltip)
+                    .iconName(listItemActionIconName)
+                    .build();
+
             ListItem item = ListItem.newListItem(itemId)
                     .label(itemLabel)
                     .imageURL(itemImageURL)
+                    .action(itemAction)
                     .build();
             // @formatter:on
 

@@ -99,4 +99,10 @@ export interface ListItem {
   id: string;
   label: string;
   imageURL: string;
+  action: ListItemAction;
+}
+
+export interface ListItemAction {
+  tooltip: string;
+  iconName: 'DeleteIcon' | 'CheckIcon';
 }

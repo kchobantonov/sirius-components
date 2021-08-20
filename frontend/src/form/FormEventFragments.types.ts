@@ -129,4 +129,10 @@ export interface GQLListItem {
   id: string;
   label: string;
   imageURL: string;
+  action: GQLListItemAction;
+}
+
+export interface GQLListItemAction {
+  tooltip: string;
+  iconName: string;
 }

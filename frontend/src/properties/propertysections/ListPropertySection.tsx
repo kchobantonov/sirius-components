@@ -10,6 +10,7 @@
  * Contributors:
  *     Obeo - initial API and implementation
  *******************************************************************************/
+import { IconButton, Tooltip } from '@material-ui/core';
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import { makeStyles } from '@material-ui/core/styles';
@@ -17,6 +18,7 @@ import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
+import DeleteIcon from '@material-ui/icons/Delete';
 import { httpOrigin } from 'common/URL';
 import { ListPropertySectionProps } from 'properties/propertysections/ListPropertySection.types';
 import { PropertySectionLabel } from 'properties/propertysections/PropertySectionLabel';
@@ -40,7 +42,7 @@ const useListPropertySectionStyles = makeStyles((theme) => ({
   },
 }));
 
-export const ListPropertySection = ({ widget, subscribers }: ListPropertySectionProps) => {
+export const ListPropertySection = ({ widget, subscribers, readonly }: ListPropertySectionProps) => {
   const classes = useListPropertySectionStyles();
 
   let items = widget.items;
@@ -49,6 +51,10 @@ export const ListPropertySection = ({ widget, subscribers }: ListPropertySection
       id: 'none',
       imageURL: '',
       label: 'None',
+      action: {
+        tooltip: 'no Action',
+        iconName: 'CheckIcon',
+      },
     });
   }
 
@@ -59,7 +65,7 @@ export const ListPropertySection = ({ widget, subscribers }: ListPropertySection
         <TableBody>
           {widget.items.map((item) => (
             <TableRow key={item.id}>
-              <TableCell className={classes.cell}>
+              <TableCell>
                 {item.imageURL ? (
                   <img
                     className={classes.icon}
@@ -71,11 +77,31 @@ export const ListPropertySection = ({ widget, subscribers }: ListPropertySection
                 ) : null}
                 {item.label}
               </TableCell>
+              <TableCell>{getActionIcon(item.action.iconName, readonly)}</TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
       <FormHelperText>{widget.diagnostics[0]?.message}</FormHelperText>
     </FormControl>
+  );
+};
+
+const getActionIcon = (iconeName: string, disabled: boolean) => {
+  if (iconeName === 'DeleteIcon') {
+    return (
+      <Tooltip title="Delete">
+        <IconButton aria-label="delete" size="small" disabled={disabled}>
+          <DeleteIcon />
+        </IconButton>
+      </Tooltip>
+    );
+  }
+  return (
+    <Tooltip title="Check">
+      <IconButton aria-label="check" size="small" disabled={disabled}>
+        <DeleteIcon />
+      </IconButton>
+    </Tooltip>
   );
 };
