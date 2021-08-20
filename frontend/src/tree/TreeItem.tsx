@@ -228,70 +228,7 @@ export const TreeItem = ({
       });
     };
 
-    if (item.kind === 'Document') {
-      const onNewObject = () =>
-        setState((prevState) => {
-          return {
-            modalDisplayed: 'CreateNewRootObject',
-            x: 0,
-            y: 0,
-            showContextMenu: false,
-            editingMode: false,
-            label: item.label,
-            prevSelectionId: prevState.prevSelectionId,
-          };
-        });
-      const onRenameDocument = () =>
-        setState((prevState) => {
-          return {
-            modalDisplayed: null,
-            x: 0,
-            y: 0,
-            showContextMenu: false,
-            editingMode: true,
-            label: item.label,
-            prevSelectionId: prevState.prevSelectionId,
-          };
-        });
-      const onDownload = () =>
-        setState((prevState) => {
-          return {
-            modalDisplayed: null,
-            x: 0,
-            y: 0,
-            showContextMenu: false,
-            editingMode: false,
-            label: item.label,
-            prevSelectionId: prevState.prevSelectionId,
-          };
-        });
-      const onDeleteDocument = () => {
-        const variables = {
-          input: {
-            id: uuid(),
-            editingContextId,
-            treeItemId: item.id,
-            kind: item.kind,
-          },
-        };
-        deleteTreeItem({ variables });
-        onCloseContextMenu();
-      };
-      contextMenu = (
-        <TreeItemDocumentContextMenu
-          editingContextId={editingContextId}
-          documentId={item.id}
-          x={x}
-          y={y}
-          onNewObject={onNewObject}
-          onRenameDocument={onRenameDocument}
-          onDownload={onDownload}
-          onDeleteDocument={onDeleteDocument}
-          onClose={onCloseContextMenu}
-          readOnly={readOnly}
-        />
-      );
-    } else if (registry.isRepresentation(item.kind)) {
+    if (registry.isRepresentation(item.kind)) {
       const onDeleteRepresentation = () => {
         const variables = {
           input: {
@@ -324,6 +261,69 @@ export const TreeItem = ({
           readOnly={readOnly}
         />
       );
+    } else if (item.kind === 'Document') {
+      const onNewObject = () =>
+        setState((prevState) => {
+          return {
+            modalDisplayed: 'CreateNewRootObject',
+            x: 0,
+            y: 0,
+            showContextMenu: false,
+            editingMode: false,
+            label: item.label,
+            prevSelectionId: prevState.prevSelectionId,
+          };
+        });
+      const onDownload = () =>
+        setState((prevState) => {
+          return {
+            modalDisplayed: null,
+            x: 0,
+            y: 0,
+            showContextMenu: false,
+            editingMode: false,
+            label: item.label,
+            prevSelectionId: prevState.prevSelectionId,
+          };
+        });
+      const onRenameItem = () =>
+        setState((prevState) => {
+          return {
+            modalDisplayed: null,
+            x: 0,
+            y: 0,
+            showContextMenu: false,
+            editingMode: true,
+            label: item.label,
+            prevSelectionId: prevState.prevSelectionId,
+          };
+        });
+      const onDeleteItem = () => {
+        const variables = {
+          input: {
+            id: uuid(),
+            editingContextId,
+            treeItemId: item.id,
+            kind: item.kind,
+          },
+        };
+        deleteTreeItem({ variables });
+        onCloseContextMenu();
+      };
+      contextMenu = (
+        <TreeItemDocumentContextMenu
+          editingContextId={editingContextId}
+          documentId={item.id}
+          x={x}
+          y={y}
+          onNewObject={onNewObject}
+          onRenameDocument={onRenameItem}
+          onDownload={onDownload}
+          onDeleteDocument={onDeleteItem}
+          onClose={onCloseContextMenu}
+          readOnly={readOnly}
+        />
+      );
     } else {
       const onCreateNewObject = () =>
         setState((prevState) => {
@@ -349,7 +349,7 @@ export const TreeItem = ({
             prevSelectionId: prevState.prevSelectionId,
           };
         });
-      const onRenameObject = () =>
+      const onRenameItem = () =>
         setState((prevState) => {
           return {
             modalDisplayed: null,
@@ -361,7 +361,7 @@ export const TreeItem = ({
             prevSelectionId: prevState.prevSelectionId,
           };
         });
-      const onDeleteObject = () => {
+      const onDeleteItem = () => {
         const variables = {
           input: {
             id: uuid(),
@@ -380,8 +380,8 @@ export const TreeItem = ({
           onCreateNewObject={onCreateNewObject}
           onCreateRepresentation={onCreateRepresentation}
           editable={item.editable}
-          onRenameObject={onRenameObject}
-          onDeleteObject={onDeleteObject}
+          onRenameObject={onRenameItem}
+          onDeleteObject={onDeleteItem}
           onClose={onCloseContextMenu}
           readOnly={readOnly}
         />
