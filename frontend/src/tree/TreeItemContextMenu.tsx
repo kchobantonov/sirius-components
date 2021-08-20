@@ -10,7 +10,6 @@
  * Contributors:
  *     Obeo - initial API and implementation
  *******************************************************************************/
-import { httpOrigin } from 'common/URL';
 import { ContextMenu, Entry, LEFT_START, Separator } from 'core/contextmenu/ContextMenu';
 import { Delete, Edit } from 'icons';
 import React from 'react';
@@ -24,45 +23,16 @@ export const TreeItemContextMenu = ({
   openModal,
   deleteItem,
   closeContextMenu,
+  treeItemKind,
 }) => {
   const entries = [];
   // Creation operations (type-specific)
-  if (item.kind === 'Document') {
-    entries.push(
-      <Entry
-        label="New object"
-        onClick={() => openModal('CreateNewRootObject')}
-        data-testid="new-object"
-        disabled={readOnly}
-      />
-    );
-    entries.push(
-      <a
-        href={`${httpOrigin}/api/editingcontexts/${editingContextId}/documents/${item.id}`}
-        type="application/octet-stream"
-        data-testid="download-link">
-        <Entry label="Download" onClick={closeContextMenu} data-testid="download" />
-      </a>
-    );
-  } else {
-    entries.push(
-      <Entry
-        label="New object"
-        onClick={() => openModal('CreateNewObject')}
-        data-testid="new-object"
-        disabled={readOnly}
-      />
-    );
-    entries.push(
-      <Entry
-        label="New representation"
-        onClick={() => openModal('CreateRepresentation')}
-        data-testid="new-representation"
-        disabled={readOnly}
-      />
-    );
+  treeItemKind
+    .getMenuEntries(item, editingContextId, readOnly, enterEditingMode, openModal, deleteItem, closeContextMenu)
+    .forEach((entry) => entries.push(entry));
+  if (entries.length > 0) {
+    entries.push(<Separator />);
   }
-  entries.push(<Separator />);
   // Generic edition operations
   if (item.editable) {
     entries.push(

@@ -13,6 +13,7 @@
 import { useMutation } from '@apollo/client';
 import { httpOrigin } from 'common/URL';
 import { IconButton } from 'core/button/Button';
+import { Entry } from 'core/contextmenu/ContextMenu';
 import { Text } from 'core/text/Text';
 import { Textfield } from 'core/textfield/Textfield';
 import gql from 'graphql-tag';
@@ -89,13 +90,26 @@ const treeItemKindRegistry = [
         return NewRootObjectModal;
       }
     },
-    getMenuEntries: (item) => {
-      return [];
+    getMenuEntries: (item, editingContextId, readOnly, enterEditingMode, openModal, deleteItem, closeContextMenu) => {
+      return [
+        <Entry
+          label="New object"
+          onClick={() => openModal('CreateNewRootObject')}
+          data-testid="new-object"
+          disabled={readOnly}
+        />,
+        <a
+          href={`${httpOrigin}/api/editingcontexts/${editingContextId}/documents/${item.id}`}
+          type="application/octet-stream"
+          data-testid="download-link">
+          <Entry label="Download" onClick={closeContextMenu} data-testid="download" />
+        </a>,
+      ];
     },
   },
   {
     name: 'Semantic Object',
-    handles: (treeItem) => treeItem.kind !== null && treeItem.kind.contains('::'),
+    handles: (treeItem) => treeItem.kind !== null && treeItem.kind.includes('::'),
     getModal: (name) => {
       if (name === 'CreateNewObject') {
         return NewObjectModal;
@@ -103,8 +117,21 @@ const treeItemKindRegistry = [
         return NewRepresentationModal;
       }
     },
-    getMenuEntries: (item) => {
-      return [];
+    getMenuEntries: (item, editingContextId, readOnly, enterEditingMode, openModal, deleteItem, closeContextMenu) => {
+      return [
+        <Entry
+          label="New object"
+          onClick={() => openModal('CreateNewObject')}
+          data-testid="new-object"
+          disabled={readOnly}
+        />,
+        <Entry
+          label="New representation"
+          onClick={() => openModal('CreateRepresentation')}
+          data-testid="new-representation"
+          disabled={readOnly}
+        />,
+      ];
     },
   },
   // Catch-all, must come last
@@ -340,6 +367,7 @@ export const TreeItem = ({
           openModal={openModal}
           deleteItem={deleteItem}
           closeContextMenu={closeContextMenu}
+          treeItemKind={getTreeItemKind(item)}
         />
       );
     }
