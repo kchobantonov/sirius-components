@@ -397,33 +397,15 @@ export const TreeItem = ({
   };
 
   let modal = null;
-  if (modalDisplayed === 'CreateNewRootObject') {
-    modal = (
-      <NewRootObjectModal
-        editingContextId={editingContextId}
-        item={item}
-        onObjectCreated={onElementCreated}
-        onClose={onCloseModal}
-      />
-    );
-  } else if (modalDisplayed === 'CreateNewObject') {
-    modal = (
-      <NewObjectModal
-        editingContextId={editingContextId}
-        item={item}
-        onObjectCreated={onElementCreated}
-        onClose={onCloseModal}
-      />
-    );
-  } else if (modalDisplayed === 'CreateRepresentation') {
-    modal = (
-      <NewRepresentationModal
-        editingContextId={editingContextId}
-        item={item}
-        onRepresentationCreated={onElementCreated}
-        onClose={onCloseModal}
-      />
-    );
+  if (modalDisplayed !== null) {
+    const ModalComponent = getTreeItemKind(item).getModal(modalDisplayed);
+    const props = {
+      editingContextId: editingContextId,
+      item,
+      onObjectCreated: onElementCreated,
+      onClose: onCloseModal,
+    };
+    modal = <ModalComponent {...props} />;
   }
   // END MODALS
 
