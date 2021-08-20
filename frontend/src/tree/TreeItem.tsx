@@ -17,7 +17,6 @@ import { Text } from 'core/text/Text';
 import { Textfield } from 'core/textfield/Textfield';
 import gql from 'graphql-tag';
 import { ArrowCollapsed, ArrowExpanded, More, NoIcon } from 'icons';
-import { DeleteDocumentModal } from 'modals/delete-document/DeleteDocumentModal';
 import { NewObjectModal } from 'modals/new-object/NewObjectModal';
 import { NewRepresentationModal } from 'modals/new-representation/NewRepresentationModal';
 import { NewRootObjectModal } from 'modals/new-root-object/NewRootObjectModal';
@@ -406,16 +405,7 @@ export const TreeItem = ({
     });
 
   let modal = null;
-  if (modalDisplayed === 'DeleteDocument') {
-    modal = (
-      <DeleteDocumentModal
-        documentName={item.label}
-        documentId={item.id}
-        onDocumentDeleted={onCloseModal}
-        onClose={onCloseModal}
-      />
-    );
-  } else if (modalDisplayed === 'CreateNewRootObject') {
+  if (modalDisplayed === 'CreateNewRootObject') {
     const onRootObjectCreated = (object) => {
       if (!item.expanded && item.hasChildren) {
         onExpand(item.id, depth);
