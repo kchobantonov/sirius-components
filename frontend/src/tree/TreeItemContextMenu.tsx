@@ -28,7 +28,7 @@ export const TreeItemContextMenu = ({
   const entries = [];
   // Creation operations (type-specific)
   treeItemKind
-    .getMenuEntries(item, editingContextId, readOnly, enterEditingMode, openModal, deleteItem, closeContextMenu)
+    .getMenuEntries(item, editingContextId, readOnly, openModal, closeContextMenu)
     .forEach((entry) => entries.push(entry));
   if (entries.length > 0) {
     entries.push(<Separator />);

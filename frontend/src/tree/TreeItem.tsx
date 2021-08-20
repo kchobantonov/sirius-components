@@ -90,7 +90,7 @@ const treeItemKindRegistry = [
         return NewRootObjectModal;
       }
     },
-    getMenuEntries: (item, editingContextId, readOnly, enterEditingMode, openModal, deleteItem, closeContextMenu) => {
+    getMenuEntries: (item, editingContextId, readOnly, openModal, closeContextMenu) => {
       return [
         <Entry
           label="New object"
@@ -117,7 +117,7 @@ const treeItemKindRegistry = [
         return NewRepresentationModal;
       }
     },
-    getMenuEntries: (item, editingContextId, readOnly, enterEditingMode, openModal, deleteItem, closeContextMenu) => {
+    getMenuEntries: (item, editingContextId, readOnly, openModal, closeContextMenu) => {
       return [
         <Entry
           label="New object"
