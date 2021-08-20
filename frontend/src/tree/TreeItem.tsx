@@ -22,12 +22,11 @@ import { NewRepresentationModal } from 'modals/new-representation/NewRepresentat
 import { NewRootObjectModal } from 'modals/new-root-object/NewRootObjectModal';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { TreeItemDiagramContextMenu } from 'tree/TreeItemDiagramContextMenu';
-import { TreeItemDocumentContextMenu } from 'tree/TreeItemDocumentContextMenu';
-import { TreeItemObjectContextMenu } from 'tree/TreeItemObjectContextMenu';
 import { v4 as uuid } from 'uuid';
 import { RepresentationContext } from 'workbench/RepresentationContext';
 import styles from './TreeItem.module.css';
 import { TreeItemProps } from './TreeItem.types';
+import { TreeItemContextMenu } from './TreeItemContextMenu';
 
 const deleteTreeItemMutation = gql`
   mutation deleteTreeItem($input: DeleteTreeItemInput!) {
@@ -287,33 +286,18 @@ export const TreeItem = ({
           readOnly={readOnly}
         />
       );
-    } else if (item.kind === 'Document') {
-      contextMenu = (
-        <TreeItemDocumentContextMenu
-          editingContextId={editingContextId}
-          documentId={item.id}
-          x={x}
-          y={y}
-          onNewObject={() => openModal('CreateNewRootObject')}
-          onRenameDocument={enterEditingMode}
-          onDownload={closeContextMenu}
-          onDeleteDocument={deleteItem}
-          onClose={closeContextMenu}
-          readOnly={readOnly}
-        />
-      );
     } else {
       contextMenu = (
-        <TreeItemObjectContextMenu
+        <TreeItemContextMenu
           x={x}
           y={y}
-          onCreateNewObject={() => openModal('CreateNewObject')}
-          onCreateRepresentation={() => openModal('CreateRepresentation')}
-          editable={item.editable}
-          onRenameObject={enterEditingMode}
-          onDeleteObject={deleteItem}
-          onClose={closeContextMenu}
+          item={item}
+          editingContextId={editingContextId}
           readOnly={readOnly}
+          enterEditingMode={enterEditingMode}
+          openModal={openModal}
+          deleteItem={deleteItem}
+          closeContextMenu={closeContextMenu}
         />
       );
     }
