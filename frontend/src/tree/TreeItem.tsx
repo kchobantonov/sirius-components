@@ -80,6 +80,48 @@ const renameRepresentationMutation = gql`
   }
 `;
 
+const treeItemKindRegistry = [
+  {
+    name: 'Document',
+    handles: (treeItem) => treeItem.kind === 'Document',
+    getModal: (name) => {
+      if (name === 'CreateNewRootObject') {
+        return NewRootObjectModal;
+      }
+    },
+    getMenuEntries: (item) => {
+      return [];
+    },
+  },
+  {
+    name: 'Semantic Object',
+    handles: (treeItem) => treeItem.kind !== null && treeItem.kind.contains('::'),
+    getModal: (name) => {
+      if (name === 'CreateNewObject') {
+        return NewObjectModal;
+      } else if (name === 'CreateRepresentation') {
+        return NewRepresentationModal;
+      }
+    },
+    getMenuEntries: (item) => {
+      return [];
+    },
+  },
+  // Catch-all, must come last
+  {
+    name: 'Unkown item type',
+    handles: (treeItem) => true,
+    getModal: (name) => null,
+    getMenuEntries: (item) => {
+      return [];
+    },
+  },
+];
+
+function getTreeItemKind(item) {
+  return treeItemKindRegistry.find((entry) => entry.handles(item));
+}
+
 // The list of characters that will enable the direct edit mechanism.
 const directEditActivationValidCharacters = /[\w&é§èàùçÔØÁÛÊË"«»’”„´$¥€£\\¿?!=+-,;:%/{}[\]–#@*.]/;
 
