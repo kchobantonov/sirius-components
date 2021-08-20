@@ -70,7 +70,7 @@ export const TreeItemContextMenu = ({
         icon={<Edit title="" />}
         label="Rename"
         onClick={enterEditingMode}
-        data-testid="rename-object"
+        data-testid="rename-tree-item"
         disabled={readOnly}></Entry>
     );
   }
@@ -80,19 +80,14 @@ export const TreeItemContextMenu = ({
         icon={<Delete title="" />}
         label="Delete"
         onClick={deleteItem}
-        data-testid="delete-object"
+        data-testid="delete-tree-item"
         disabled={readOnly}
       />
     );
   }
 
   return (
-    <ContextMenu
-      x={x}
-      y={y}
-      caretPosition={LEFT_START}
-      onClose={closeContextMenu}
-      data-testid="treeitemdocument-contextmenu">
+    <ContextMenu x={x} y={y} caretPosition={LEFT_START} onClose={closeContextMenu} data-testid="treeitem-contextmenu">
       {entries}
     </ContextMenu>
   );
