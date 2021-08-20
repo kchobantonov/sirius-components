@@ -30,9 +30,9 @@ import { RepresentationContext } from 'workbench/RepresentationContext';
 import styles from './TreeItem.module.css';
 import { TreeItemProps } from './TreeItem.types';
 
-const deleteObjectMutation = gql`
-  mutation deleteObject($input: DeleteObjectInput!) {
-    deleteObject(input: $input) {
+const deleteTreeItemMutation = gql`
+  mutation deleteTreeItem($input: DeleteTreeItemInput!) {
+    deleteTreeItem(input: $input) {
       __typename
       ... on ErrorPayload {
         message
@@ -145,11 +145,11 @@ export const TreeItem = ({
   };
   const [state, setState] = useState(initialState);
   const { x, y, showContextMenu, modalDisplayed, editingMode, label } = state;
-  const [deleteObject] = useMutation(deleteObjectMutation);
   const [deleteRepresentation] = useMutation(deleteRepresentationMutation);
   const refDom = useRef() as any;
   const { registry } = useContext(RepresentationContext);
 
+  const [deleteTreeItem] = useMutation(deleteTreeItemMutation);
   const [renameTreeItem, { loading: renameTreeItemLoading, data: renameTreeItemData, error: renameTreeItemError }] =
     useMutation(renameTreeItemMutation);
   useEffect(() => {
@@ -266,18 +266,18 @@ export const TreeItem = ({
             prevSelectionId: prevState.prevSelectionId,
           };
         });
-      const onDeleteDocument = () =>
-        setState((prevState) => {
-          return {
-            modalDisplayed: 'DeleteDocument',
-            x: 0,
-            y: 0,
-            showContextMenu: false,
-            editingMode: false,
-            label: item.label,
-            prevSelectionId: prevState.prevSelectionId,
-          };
-        });
+      const onDeleteDocument = () => {
+        const variables = {
+          input: {
+            id: uuid(),
+            editingContextId,
+            treeItemId: item.id,
+            kind: item.kind,
+          },
+        };
+        deleteTreeItem({ variables });
+        onCloseContextMenu();
+      };
       contextMenu = (
         <TreeItemDocumentContextMenu
           editingContextId={editingContextId}
@@ -367,10 +367,11 @@ export const TreeItem = ({
           input: {
             id: uuid(),
             editingContextId,
-            objectId: item.id,
+            treeItemId: item.id,
+            kind: item.kind,
           },
         };
-        deleteObject({ variables });
+        deleteTreeItem({ variables });
         onCloseContextMenu();
       };
       contextMenu = (
