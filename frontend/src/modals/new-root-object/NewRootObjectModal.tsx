@@ -107,12 +107,7 @@ const useNewRootObjectModalStyles = makeStyles((theme) => ({
   },
 }));
 
-export const NewRootObjectModal = ({
-  editingContextId,
-  documentId,
-  onObjectCreated,
-  onClose,
-}: NewRootObjectModalProps) => {
+export const NewRootObjectModal = ({ editingContextId, item, onObjectCreated, onClose }: NewRootObjectModalProps) => {
   const classes = useNewRootObjectModalStyles();
   const [{ value, context }, dispatch] = useMachine<NewRootObjectModalContext, NewRootObjectModalEvent>(
     newRootObjectModalMachine
@@ -215,7 +210,7 @@ export const NewRootObjectModal = ({
     const input = {
       id: uuid(),
       editingContextId,
-      documentId,
+      documentId: item.id,
       domainId: selectedDomainId,
       rootObjectCreationDescriptionId: selectedRootObjectCreationDescriptionId,
     };

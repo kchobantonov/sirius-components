@@ -401,7 +401,7 @@ export const TreeItem = ({
     modal = (
       <NewRootObjectModal
         editingContextId={editingContextId}
-        documentId={item.id}
+        item={item}
         onObjectCreated={onElementCreated}
         onClose={onCloseModal}
       />
@@ -410,8 +410,7 @@ export const TreeItem = ({
     modal = (
       <NewObjectModal
         editingContextId={editingContextId}
-        classId={item.kind}
-        objectId={item.id}
+        item={item}
         onObjectCreated={onElementCreated}
         onClose={onCloseModal}
       />
@@ -420,8 +419,7 @@ export const TreeItem = ({
     modal = (
       <NewRepresentationModal
         editingContextId={editingContextId}
-        classId={item.kind}
-        objectId={item.id}
+        item={item}
         onRepresentationCreated={onElementCreated}
         onClose={onCloseModal}
       />

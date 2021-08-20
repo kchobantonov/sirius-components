@@ -14,8 +14,7 @@ import { Selection } from 'workbench/Workbench.types';
 
 export interface NewObjectModalProps {
   editingContextId: string;
-  classId: string;
-  objectId: string;
+  item: any;
   onObjectCreated: (objectToSelect: Selection) => void;
   onClose: () => void;
 }

@@ -13,6 +13,7 @@
 import { ContextMenu, Entry, LEFT_START, Separator } from 'core/contextmenu/ContextMenu';
 import { Delete, Edit } from 'icons';
 import React from 'react';
+
 export const TreeItemContextMenu = ({
   x,
   y,
