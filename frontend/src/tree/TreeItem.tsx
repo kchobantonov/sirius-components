@@ -143,9 +143,7 @@ export const TreeItem = ({
   };
   const [state, setState] = useState(initialState);
   const { x, y, showContextMenu, modalDisplayed, editingMode, label } = state;
-  const [deleteRepresentation] = useMutation(deleteRepresentationMutation);
   const refDom = useRef() as any;
-  const { registry } = useContext(RepresentationContext);
 
   const [deleteTreeItem] = useMutation(deleteTreeItemMutation);
   const [renameTreeItem, { loading: renameTreeItemLoading, data: renameTreeItemData, error: renameTreeItemError }] =
@@ -161,6 +159,8 @@ export const TreeItem = ({
     }
   }, [renameTreeItemData, renameTreeItemError, renameTreeItemLoading]);
 
+  const { registry } = useContext(RepresentationContext);
+  const [deleteRepresentation] = useMutation(deleteRepresentationMutation);
   const [
     renameRepresentation,
     { loading: renameRepresentationLoading, data: renameRepresentationData, error: renameRepresentationError },
