@@ -403,91 +403,42 @@ export const TreeItem = ({
         prevSelectionId: prevState.prevSelectionId,
       };
     });
+  const onElementCreated = (object) => {
+    if (!item.expanded && item.hasChildren) {
+      onExpand(item.id, depth);
+    }
+    const { id, label, kind } = object;
+    setSelection({ id, label, kind });
+    onCloseModal();
+  };
 
   let modal = null;
   if (modalDisplayed === 'CreateNewRootObject') {
-    const onRootObjectCreated = (object) => {
-      if (!item.expanded && item.hasChildren) {
-        onExpand(item.id, depth);
-      }
-
-      const { id, label, kind } = object;
-      setSelection({ id, label, kind });
-      setState((prevState) => {
-        return {
-          modalDisplayed: null,
-          x: 0,
-          y: 0,
-          showContextMenu: false,
-          editingMode: false,
-          label: label,
-          prevSelectionId: prevState.prevSelectionId,
-        };
-      });
-    };
     modal = (
       <NewRootObjectModal
         editingContextId={editingContextId}
         documentId={item.id}
-        onObjectCreated={onRootObjectCreated}
+        onObjectCreated={onElementCreated}
         onClose={onCloseModal}
       />
     );
   } else if (modalDisplayed === 'CreateNewObject') {
-    const onObjectCreated = (object) => {
-      if (!item.expanded && item.hasChildren) {
-        onExpand(item.id, depth);
-      }
-
-      const { id, label, kind } = object;
-      setSelection({ id, label, kind });
-      setState((prevState) => {
-        return {
-          modalDisplayed: null,
-          x: 0,
-          y: 0,
-          showContextMenu: false,
-          editingMode: false,
-          label: label,
-          prevSelectionId: prevState.prevSelectionId,
-        };
-      });
-    };
     modal = (
       <NewObjectModal
         editingContextId={editingContextId}
         classId={item.kind}
         objectId={item.id}
-        onObjectCreated={onObjectCreated}
+        onObjectCreated={onElementCreated}
         onClose={onCloseModal}
       />
     );
   } else if (modalDisplayed === 'CreateRepresentation') {
-    const onRepresentationCreated = (representation) => {
-      if (!item.expanded && item.hasChildren) {
-        onExpand(item.id, depth);
-      }
-
-      const { id, label, kind } = representation;
-      setSelection({ id, label, kind });
-      setState((prevState) => {
-        return {
-          modalDisplayed: null,
-          x: 0,
-          y: 0,
-          showContextMenu: false,
-          editingMode: false,
-          label: label,
-          prevSelectionId: prevState.prevSelectionId,
-        };
-      });
-    };
     modal = (
       <NewRepresentationModal
         editingContextId={editingContextId}
         classId={item.kind}
         objectId={item.id}
-        onRepresentationCreated={onRepresentationCreated}
+        onRepresentationCreated={onElementCreated}
         onClose={onCloseModal}
       />
     );
