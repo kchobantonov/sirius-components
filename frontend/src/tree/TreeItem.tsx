@@ -214,7 +214,7 @@ export const TreeItem = ({
 
   let contextMenu = null;
   if (showContextMenu) {
-    const onCloseContextMenu = () => {
+    const closeContextMenu = () => {
       setState((prevState) => {
         return {
           modalDisplayed: null,
@@ -227,6 +227,44 @@ export const TreeItem = ({
         };
       });
     };
+    const enterEditingMode = () => {
+      setState((prevState) => {
+        return {
+          modalDisplayed: null,
+          x: 0,
+          y: 0,
+          showContextMenu: false,
+          editingMode: true,
+          label: item.label,
+          prevSelectionId: prevState.prevSelectionId,
+        };
+      });
+    };
+    const openModal = (modalName) => {
+      setState((prevState) => {
+        return {
+          modalDisplayed: modalName,
+          x: 0,
+          y: 0,
+          showContextMenu: false,
+          editingMode: false,
+          label: item.label,
+          prevSelectionId: prevState.prevSelectionId,
+        };
+      });
+    };
+    const deleteItem = () => {
+      const variables = {
+        input: {
+          id: uuid(),
+          editingContextId,
+          treeItemId: item.id,
+          kind: item.kind,
+        },
+      };
+      deleteTreeItem({ variables });
+      closeContextMenu();
+    };
 
     if (registry.isRepresentation(item.kind)) {
       const onDeleteRepresentation = () => {
@@ -237,152 +275,44 @@ export const TreeItem = ({
           },
         };
         deleteRepresentation({ variables });
-        onCloseContextMenu();
+        closeContextMenu();
       };
-      const onRenameRepresentation = () =>
-        setState((prevState) => {
-          return {
-            modalDisplayed: null,
-            x: 0,
-            y: 0,
-            showContextMenu: false,
-            editingMode: true,
-            label: item.label,
-            prevSelectionId: prevState.prevSelectionId,
-          };
-        });
       contextMenu = (
         <TreeItemDiagramContextMenu
           onDeleteRepresentation={onDeleteRepresentation}
-          onRenameRepresentation={onRenameRepresentation}
+          onRenameRepresentation={enterEditingMode}
           x={x}
           y={y}
-          onClose={onCloseContextMenu}
+          onClose={closeContextMenu}
           readOnly={readOnly}
         />
       );
     } else if (item.kind === 'Document') {
-      const onNewObject = () =>
-        setState((prevState) => {
-          return {
-            modalDisplayed: 'CreateNewRootObject',
-            x: 0,
-            y: 0,
-            showContextMenu: false,
-            editingMode: false,
-            label: item.label,
-            prevSelectionId: prevState.prevSelectionId,
-          };
-        });
-      const onDownload = () =>
-        setState((prevState) => {
-          return {
-            modalDisplayed: null,
-            x: 0,
-            y: 0,
-            showContextMenu: false,
-            editingMode: false,
-            label: item.label,
-            prevSelectionId: prevState.prevSelectionId,
-          };
-        });
-      const onRenameItem = () =>
-        setState((prevState) => {
-          return {
-            modalDisplayed: null,
-            x: 0,
-            y: 0,
-            showContextMenu: false,
-            editingMode: true,
-            label: item.label,
-            prevSelectionId: prevState.prevSelectionId,
-          };
-        });
-      const onDeleteItem = () => {
-        const variables = {
-          input: {
-            id: uuid(),
-            editingContextId,
-            treeItemId: item.id,
-            kind: item.kind,
-          },
-        };
-        deleteTreeItem({ variables });
-        onCloseContextMenu();
-      };
       contextMenu = (
         <TreeItemDocumentContextMenu
           editingContextId={editingContextId}
           documentId={item.id}
           x={x}
           y={y}
-          onNewObject={onNewObject}
-          onRenameDocument={onRenameItem}
-          onDownload={onDownload}
-          onDeleteDocument={onDeleteItem}
-          onClose={onCloseContextMenu}
+          onNewObject={() => openModal('CreateNewRootObject')}
+          onRenameDocument={enterEditingMode}
+          onDownload={closeContextMenu}
+          onDeleteDocument={deleteItem}
+          onClose={closeContextMenu}
           readOnly={readOnly}
         />
       );
     } else {
-      const onCreateNewObject = () =>
-        setState((prevState) => {
-          return {
-            modalDisplayed: 'CreateNewObject',
-            x: 0,
-            y: 0,
-            showContextMenu: false,
-            editingMode: false,
-            label: item.label,
-            prevSelectionId: prevState.prevSelectionId,
-          };
-        });
-      const onCreateRepresentation = () =>
-        setState((prevState) => {
-          return {
-            modalDisplayed: 'CreateRepresentation',
-            x: 0,
-            y: 0,
-            showContextMenu: false,
-            editingMode: false,
-            label: item.label,
-            prevSelectionId: prevState.prevSelectionId,
-          };
-        });
-      const onRenameItem = () =>
-        setState((prevState) => {
-          return {
-            modalDisplayed: null,
-            x: 0,
-            y: 0,
-            showContextMenu: false,
-            editingMode: true,
-            label: item.label,
-            prevSelectionId: prevState.prevSelectionId,
-          };
-        });
-      const onDeleteItem = () => {
-        const variables = {
-          input: {
-            id: uuid(),
-            editingContextId,
-            treeItemId: item.id,
-            kind: item.kind,
-          },
-        };
-        deleteTreeItem({ variables });
-        onCloseContextMenu();
-      };
       contextMenu = (
         <TreeItemObjectContextMenu
           x={x}
           y={y}
-          onCreateNewObject={onCreateNewObject}
-          onCreateRepresentation={onCreateRepresentation}
+          onCreateNewObject={() => openModal('CreateNewObject')}
+          onCreateRepresentation={() => openModal('CreateRepresentation')}
           editable={item.editable}
-          onRenameObject={onRenameItem}
-          onDeleteObject={onDeleteItem}
-          onClose={onCloseContextMenu}
+          onRenameObject={enterEditingMode}
+          onDeleteObject={deleteItem}
+          onClose={closeContextMenu}
           readOnly={readOnly}
         />
       );
