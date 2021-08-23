@@ -85,6 +85,8 @@ const treeItemKindRegistry = [
   {
     name: 'Document',
     handles: (treeItem) => treeItem.kind === 'Document',
+    getItemTitle: (item) => 'Model',
+    getItemLabel: (item) => item.label,
     getModal: (name) => {
       if (name === 'CreateNewRootObject') {
         return NewRootObjectModal;
@@ -110,6 +112,14 @@ const treeItemKindRegistry = [
   {
     name: 'Semantic Object',
     handles: (treeItem) => treeItem.kind !== null && treeItem.kind.includes('::'),
+    getItemTitle: (item) => item.kind,
+    getItemLabel: (item) => {
+      if (item.label) {
+        return item.label;
+      } else {
+        return item.kind.split('::').pop();
+      }
+    },
     getModal: (name) => {
       if (name === 'CreateNewObject') {
         return NewObjectModal;
@@ -138,6 +148,8 @@ const treeItemKindRegistry = [
   {
     name: 'Unkown item type',
     handles: (treeItem) => true,
+    getItemTitle: (item) => 'Unknown',
+    getItemLabel: (item) => item.label,
     getModal: (name) => null,
     getMenuEntries: (item) => {
       return [];
@@ -446,19 +458,12 @@ export const TreeItem = ({
   }
   let itemTitle = null;
   let itemLabel = null;
-  if (item.kind === 'Document') {
-    itemLabel = item.label;
-    itemTitle = 'Model';
-  } else if (registry.isRepresentation(item.kind)) {
+  if (registry.isRepresentation(item.kind)) {
     itemLabel = item.label;
     itemTitle = item.kind;
   } else {
-    if (item.label) {
-      itemLabel = item.label;
-    } else {
-      itemLabel = item.kind.split('::').pop();
-    }
-    itemTitle = item.kind;
+    itemTitle = getTreeItemKind(item).getItemTitle(item);
+    itemLabel = getTreeItemKind(item).getItemLabel(item);
   }
 
   let text;
