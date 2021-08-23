@@ -13,14 +13,10 @@
 import { useMutation } from '@apollo/client';
 import { httpOrigin } from 'common/URL';
 import { IconButton } from 'core/button/Button';
-import { Entry } from 'core/contextmenu/ContextMenu';
 import { Text } from 'core/text/Text';
 import { Textfield } from 'core/textfield/Textfield';
 import gql from 'graphql-tag';
 import { ArrowCollapsed, ArrowExpanded, More, NoIcon } from 'icons';
-import { NewObjectModal } from 'modals/new-object/NewObjectModal';
-import { NewRepresentationModal } from 'modals/new-representation/NewRepresentationModal';
-import { NewRootObjectModal } from 'modals/new-root-object/NewRootObjectModal';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { TreeItemDiagramContextMenu } from 'tree/TreeItemDiagramContextMenu';
 import { v4 as uuid } from 'uuid';
@@ -28,6 +24,7 @@ import { RepresentationContext } from 'workbench/RepresentationContext';
 import styles from './TreeItem.module.css';
 import { TreeItemProps } from './TreeItem.types';
 import { TreeItemContextMenu } from './TreeItemContextMenu';
+import { getTreeItemKind } from './TreeItemKindRegistry';
 
 const deleteTreeItemMutation = gql`
   mutation deleteTreeItem($input: DeleteTreeItemInput!) {
@@ -80,86 +77,6 @@ const renameRepresentationMutation = gql`
     }
   }
 `;
-
-const treeItemKindRegistry = [
-  {
-    name: 'Document',
-    handles: (treeItem) => treeItem.kind === 'Document',
-    getItemTitle: (item) => 'Model',
-    getItemLabel: (item) => item.label,
-    getModal: (name) => {
-      if (name === 'CreateNewRootObject') {
-        return NewRootObjectModal;
-      }
-    },
-    getMenuEntries: (item, editingContextId, readOnly, openModal, closeContextMenu) => {
-      return [
-        <Entry
-          label="New object"
-          onClick={() => openModal('CreateNewRootObject')}
-          data-testid="new-object"
-          disabled={readOnly}
-        />,
-        <a
-          href={`${httpOrigin}/api/editingcontexts/${editingContextId}/documents/${item.id}`}
-          type="application/octet-stream"
-          data-testid="download-link">
-          <Entry label="Download" onClick={closeContextMenu} data-testid="download" />
-        </a>,
-      ];
-    },
-  },
-  {
-    name: 'Semantic Object',
-    handles: (treeItem) => treeItem.kind !== null && treeItem.kind.includes('::'),
-    getItemTitle: (item) => item.kind,
-    getItemLabel: (item) => {
-      if (item.label) {
-        return item.label;
-      } else {
-        return item.kind.split('::').pop();
-      }
-    },
-    getModal: (name) => {
-      if (name === 'CreateNewObject') {
-        return NewObjectModal;
-      } else if (name === 'CreateRepresentation') {
-        return NewRepresentationModal;
-      }
-    },
-    getMenuEntries: (item, editingContextId, readOnly, openModal, closeContextMenu) => {
-      return [
-        <Entry
-          label="New object"
-          onClick={() => openModal('CreateNewObject')}
-          data-testid="new-object"
-          disabled={readOnly}
-        />,
-        <Entry
-          label="New representation"
-          onClick={() => openModal('CreateRepresentation')}
-          data-testid="new-representation"
-          disabled={readOnly}
-        />,
-      ];
-    },
-  },
-  // Catch-all, must come last
-  {
-    name: 'Unkown item type',
-    handles: (treeItem) => true,
-    getItemTitle: (item) => 'Unknown',
-    getItemLabel: (item) => item.label,
-    getModal: (name) => null,
-    getMenuEntries: (item) => {
-      return [];
-    },
-  },
-];
-
-function getTreeItemKind(item) {
-  return treeItemKindRegistry.find((entry) => entry.handles(item));
-}
 
 // The list of characters that will enable the direct edit mechanism.
 const directEditActivationValidCharacters = /[\w&é§èàùçÔØÁÛÊË"«»’”„´$¥€£\\¿?!=+-,;:%/{}[\]–#@*.]/;
