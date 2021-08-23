@@ -17,10 +17,8 @@ import { Text } from 'core/text/Text';
 import { Textfield } from 'core/textfield/Textfield';
 import gql from 'graphql-tag';
 import { ArrowCollapsed, ArrowExpanded, More, NoIcon } from 'icons';
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { TreeItemDiagramContextMenu } from 'tree/TreeItemDiagramContextMenu';
+import React, { useEffect, useRef, useState } from 'react';
 import { v4 as uuid } from 'uuid';
-import { RepresentationContext } from 'workbench/RepresentationContext';
 import styles from './TreeItem.module.css';
 import { TreeItemProps } from './TreeItem.types';
 import { TreeItemContextMenu } from './TreeItemContextMenu';
@@ -37,40 +35,10 @@ const deleteTreeItemMutation = gql`
   }
 `;
 
-const deleteRepresentationMutation = gql`
-  mutation deleteRepresentation($input: DeleteRepresentationInput!) {
-    deleteRepresentation(input: $input) {
-      __typename
-      ... on DeleteRepresentationSuccessPayload {
-        representationId
-      }
-      ... on ErrorPayload {
-        message
-      }
-    }
-  }
-`;
-
 const renameTreeItemMutation = gql`
   mutation renameTreeItem($input: RenameTreeItemInput!) {
     renameTreeItem(input: $input) {
       __typename
-      ... on ErrorPayload {
-        message
-      }
-    }
-  }
-`;
-
-const renameRepresentationMutation = gql`
-  mutation renameRepresentation($input: RenameRepresentationInput!) {
-    renameRepresentation(input: $input) {
-      __typename
-      ... on RenameRepresentationSuccessPayload {
-        representation {
-          label
-        }
-      }
       ... on ErrorPayload {
         message
       }
@@ -91,7 +59,7 @@ const menuPositionDelta = {
   dy: -6,
 };
 
-const ItemArrow = ({ item, depth, onExpand }) => {
+const ItemCollapseToggle = ({ item, depth, onExpand }) => {
   if (item.hasChildren) {
     const onClick = () => onExpand(item.id, depth);
     if (item.expanded) {
@@ -159,23 +127,6 @@ export const TreeItem = ({
 
   const itemHandler = useTreeItemHandler(item);
 
-  const { registry: representationsRegistry } = useContext(RepresentationContext);
-  const [deleteRepresentation] = useMutation(deleteRepresentationMutation);
-  const [
-    renameRepresentation,
-    { loading: renameRepresentationLoading, data: renameRepresentationData, error: renameRepresentationError },
-  ] = useMutation(renameRepresentationMutation);
-  useEffect(() => {
-    if (!renameRepresentationLoading && !renameRepresentationError && renameRepresentationData?.renameRepresentation) {
-      const { renameRepresentation } = renameRepresentationData;
-      if (renameRepresentation.__typename === 'RenameRepresentationSuccessPayload') {
-        setState((prevState) => {
-          return { ...prevState, editingMode: false, label: renameRepresentation.label };
-        });
-      }
-    }
-  }, [renameRepresentationData, renameRepresentationError, renameRepresentationLoading]);
-
   // custom hook for getting previous value
   const usePrevious = (value) => {
     const ref = useRef();
@@ -192,9 +143,8 @@ export const TreeItem = ({
     }
   }, [editingMode, prevEditingMode]);
 
-  // START CONTEXT MENU
-
-  const onMore = (event) => {
+  // Context menu handling
+  const openContextMenu = (event) => {
     const { x, y } = event.currentTarget.getBoundingClientRect();
     if (!showContextMenu) {
       setState((prevState) => {
@@ -265,48 +215,24 @@ export const TreeItem = ({
       closeContextMenu();
     };
 
-    if (representationsRegistry.isRepresentation(item.kind)) {
-      const onDeleteRepresentation = () => {
-        const variables = {
-          input: {
-            id: uuid(),
-            representationId: item.id,
-          },
-        };
-        deleteRepresentation({ variables });
-        closeContextMenu();
-      };
-      contextMenu = (
-        <TreeItemDiagramContextMenu
-          onDeleteRepresentation={onDeleteRepresentation}
-          onRenameRepresentation={enterEditingMode}
-          x={x}
-          y={y}
-          onClose={closeContextMenu}
-          readOnly={readOnly}
-        />
-      );
-    } else {
-      contextMenu = (
-        <TreeItemContextMenu
-          x={x}
-          y={y}
-          item={item}
-          editingContextId={editingContextId}
-          readOnly={readOnly}
-          enterEditingMode={enterEditingMode}
-          openModal={openModal}
-          deleteItem={deleteItem}
-          closeContextMenu={closeContextMenu}
-          treeItemHandler={itemHandler}
-        />
-      );
-    }
+    contextMenu = (
+      <TreeItemContextMenu
+        x={x}
+        y={y}
+        item={item}
+        editingContextId={editingContextId}
+        readOnly={readOnly}
+        enterEditingMode={enterEditingMode}
+        openModal={openModal}
+        deleteItem={deleteItem}
+        closeContextMenu={closeContextMenu}
+        treeItemHandler={itemHandler}
+      />
+    );
   }
-  // END CONTEXT MENU
 
-  // BEGIN MODALS
-  const onCloseModal = () =>
+  // Modals handling
+  const closeModal = () =>
     setState((prevState) => {
       return {
         modalDisplayed: null,
@@ -318,13 +244,13 @@ export const TreeItem = ({
         prevSelectionId: prevState.prevSelectionId,
       };
     });
-  const onElementCreated = (object) => {
+  const selectAndRevealItem = (object) => {
     if (!item.expanded && item.hasChildren) {
       onExpand(item.id, depth);
     }
     const { id, label, kind } = object;
     setSelection({ id, label, kind });
-    onCloseModal();
+    closeModal();
   };
 
   let modal = null;
@@ -333,12 +259,11 @@ export const TreeItem = ({
     const props = {
       editingContextId: editingContextId,
       item,
-      onObjectCreated: onElementCreated,
-      onClose: onCloseModal,
+      onObjectCreated: selectAndRevealItem,
+      onClose: closeModal,
     };
     modal = <ModalComponent {...props} />;
   }
-  // END MODALS
 
   let children = null;
   if (item.expanded) {
@@ -375,15 +300,8 @@ export const TreeItem = ({
   if (item.imageURL) {
     image = <img height="16" width="16" alt={item.kind} src={httpOrigin + item.imageURL}></img>;
   }
-  let itemTitle = null;
-  let itemLabel = null;
-  if (representationsRegistry.isRepresentation(item.kind)) {
-    itemLabel = item.label;
-    itemTitle = item.kind;
-  } else {
-    itemTitle = itemHandler.getItemTitle(item);
-    itemLabel = itemHandler.getItemLabel(item);
-  }
+  const itemTitle = itemHandler.getItemTitle(item);
+  const itemLabel = itemHandler.getItemLabel(item);
 
   let text;
   if (editingMode) {
@@ -397,19 +315,11 @@ export const TreeItem = ({
     const doRename = () => {
       const isNameValid = label.length >= 1;
       if (isNameValid && item) {
-        if (representationsRegistry.isRepresentation(item?.kind)) {
-          renameRepresentation({
-            variables: {
-              input: { id: uuid(), editingContextId, representationId: item.id, newLabel: label },
-            },
-          });
-        } else {
-          renameTreeItem({
-            variables: {
-              input: { id: uuid(), editingContextId, treeItemId: item.id, kind: item.kind, newName: label },
-            },
-          });
-        }
+        renameTreeItem({
+          variables: {
+            input: { id: uuid(), editingContextId, treeItemId: item.id, kind: item.kind, newName: label },
+          },
+        });
       } else {
         setState((prevState) => {
           return { ...prevState, editingMode: false, label: item.label };
@@ -492,7 +402,7 @@ export const TreeItem = ({
         data-depth={depth}
         data-expanded={item.expanded.toString()}
         data-testid={dataTestid}>
-        <ItemArrow item={item} depth={depth} onExpand={onExpand} />
+        <ItemCollapseToggle item={item} depth={depth} onExpand={onExpand} />
         <div className={styles.content}>
           <div
             className={styles.imageAndLabel}
@@ -503,7 +413,7 @@ export const TreeItem = ({
             {image}
             {text}
           </div>
-          <IconButton className={styles.more} onClick={onMore} data-testid={`${itemLabel}-more`}>
+          <IconButton className={styles.more} onClick={openContextMenu} data-testid={`${itemLabel}-more`}>
             <More title="More" />
           </IconButton>
         </div>

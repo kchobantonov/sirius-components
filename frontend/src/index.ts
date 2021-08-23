@@ -91,8 +91,6 @@ export * from './tree/Tree.types';
 export * from './tree/TreeItem';
 export * from './tree/TreeItem.types';
 export * from './tree/TreeItemContextMenu';
-export * from './tree/TreeItemDiagramContextMenu';
-export * from './tree/TreeItemDiagramContextMenu.types';
 export * from './tree/TreeItemHandlersContext';
 export * from './views/FormContainer';
 export * from './workbench/RepresentationContext';
