@@ -93,6 +93,7 @@ export * from './tree/TreeItem.types';
 export * from './tree/TreeItemContextMenu';
 export * from './tree/TreeItemDiagramContextMenu';
 export * from './tree/TreeItemDiagramContextMenu.types';
+export * from './tree/TreeItemHandlersContext';
 export * from './views/FormContainer';
 export * from './workbench/RepresentationContext';
 export * from './workbench/RepresentationNavigation';

@@ -24,11 +24,11 @@ export const TreeItemContextMenu = ({
   openModal,
   deleteItem,
   closeContextMenu,
-  treeItemKind,
+  treeItemHandler,
 }) => {
   const entries = [];
   // Creation operations (type-specific)
-  treeItemKind
+  treeItemHandler
     .getMenuEntries(item, editingContextId, readOnly, openModal, closeContextMenu)
     .forEach((entry) => entries.push(entry));
   if (entries.length > 0) {

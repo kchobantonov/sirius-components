@@ -24,7 +24,7 @@ import { RepresentationContext } from 'workbench/RepresentationContext';
 import styles from './TreeItem.module.css';
 import { TreeItemProps } from './TreeItem.types';
 import { TreeItemContextMenu } from './TreeItemContextMenu';
-import { getTreeItemKind } from './TreeItemKindRegistry';
+import { useTreeItemHandler } from './TreeItemHandlersContext';
 
 const deleteTreeItemMutation = gql`
   mutation deleteTreeItem($input: DeleteTreeItemInput!) {
@@ -157,7 +157,9 @@ export const TreeItem = ({
     }
   }, [renameTreeItemData, renameTreeItemError, renameTreeItemLoading]);
 
-  const { registry } = useContext(RepresentationContext);
+  const itemHandler = useTreeItemHandler(item);
+
+  const { registry: representationsRegistry } = useContext(RepresentationContext);
   const [deleteRepresentation] = useMutation(deleteRepresentationMutation);
   const [
     renameRepresentation,
@@ -263,7 +265,7 @@ export const TreeItem = ({
       closeContextMenu();
     };
 
-    if (registry.isRepresentation(item.kind)) {
+    if (representationsRegistry.isRepresentation(item.kind)) {
       const onDeleteRepresentation = () => {
         const variables = {
           input: {
@@ -296,7 +298,7 @@ export const TreeItem = ({
           openModal={openModal}
           deleteItem={deleteItem}
           closeContextMenu={closeContextMenu}
-          treeItemKind={getTreeItemKind(item)}
+          treeItemHandler={itemHandler}
         />
       );
     }
@@ -327,7 +329,7 @@ export const TreeItem = ({
 
   let modal = null;
   if (modalDisplayed !== null) {
-    const ModalComponent = getTreeItemKind(item).getModal(modalDisplayed);
+    const ModalComponent = itemHandler.getModal(modalDisplayed);
     const props = {
       editingContextId: editingContextId,
       item,
@@ -375,12 +377,12 @@ export const TreeItem = ({
   }
   let itemTitle = null;
   let itemLabel = null;
-  if (registry.isRepresentation(item.kind)) {
+  if (representationsRegistry.isRepresentation(item.kind)) {
     itemLabel = item.label;
     itemTitle = item.kind;
   } else {
-    itemTitle = getTreeItemKind(item).getItemTitle(item);
-    itemLabel = getTreeItemKind(item).getItemLabel(item);
+    itemTitle = itemHandler.getItemTitle(item);
+    itemLabel = itemHandler.getItemLabel(item);
   }
 
   let text;
@@ -395,7 +397,7 @@ export const TreeItem = ({
     const doRename = () => {
       const isNameValid = label.length >= 1;
       if (isNameValid && item) {
-        if (registry.isRepresentation(item?.kind)) {
+        if (representationsRegistry.isRepresentation(item?.kind)) {
           renameRepresentation({
             variables: {
               input: { id: uuid(), editingContextId, representationId: item.id, newLabel: label },
