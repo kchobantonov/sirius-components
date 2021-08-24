@@ -28,6 +28,7 @@ import org.eclipse.sirius.web.representations.VariableManager;
 import org.eclipse.sirius.web.spring.collaborative.api.ChangeDescription;
 import org.eclipse.sirius.web.spring.collaborative.api.ChangeKind;
 import org.eclipse.sirius.web.spring.collaborative.api.EventHandlerResponse;
+import org.eclipse.sirius.web.spring.collaborative.diagrams.DiagramChangeKind;
 import org.eclipse.sirius.web.spring.collaborative.diagrams.api.IDiagramContext;
 import org.eclipse.sirius.web.spring.collaborative.diagrams.api.IDiagramEventHandler;
 import org.eclipse.sirius.web.spring.collaborative.diagrams.api.IDiagramInput;
@@ -38,7 +39,7 @@ import org.eclipse.sirius.web.spring.collaborative.diagrams.messages.ICollaborat
 import org.springframework.stereotype.Service;
 
 /**
- * Handle "Drop in Diagram" events.
+ * Handle "Drop on Diagram" events.
  *
  * @author hmarchadour
  */
@@ -72,15 +73,16 @@ public class DropOnDiagramEventHandler implements IDiagramEventHandler {
         EventHandlerResponse result = new EventHandlerResponse(new ChangeDescription(ChangeKind.NOTHING, diagramInput.getRepresentationId()), new ErrorPayload(diagramInput.getId(), message));
         if (diagramInput instanceof DropOnDiagramInput) {
             DropOnDiagramInput input = (DropOnDiagramInput) diagramInput;
+            result = new EventHandlerResponse(new ChangeDescription(ChangeKind.NOTHING, diagramInput.getRepresentationId()), new ErrorPayload(diagramInput.getId(), this.messageService.invalidDrop()));
             Optional<Object> optionalObject = this.objectService.getObject(editingContext, input.getObjectId());
             Diagram diagram = diagramContext.getDiagram();
-            Object self = optionalObject.get();
-            Status status = this.executeTool(editingContext, diagramContext, self, input.getDiagramTargetElementId());
-            if (Objects.equals(Status.OK, status)) {
-                return new EventHandlerResponse(new ChangeDescription(ChangeKind.SEMANTIC_CHANGE, diagramInput.getRepresentationId()), new DropOnDiagramSuccessPayload(diagramInput.getId(), diagram));
-            } else {
-                result = new EventHandlerResponse(new ChangeDescription(ChangeKind.NOTHING, diagramInput.getRepresentationId()),
-                        new ErrorPayload(diagramInput.getId(), this.messageService.invalidDrop()));
+            if (optionalObject.isPresent()) {
+                Object self = optionalObject.get();
+                Status status = this.executeTool(editingContext, diagramContext, self, input.getDiagramTargetElementId());
+                if (Objects.equals(Status.OK, status)) {
+                    return new EventHandlerResponse(new ChangeDescription(DiagramChangeKind.DIAGRAM_LAYOUT_CHANGE, diagramInput.getRepresentationId()),
+                            new DropOnDiagramSuccessPayload(diagramInput.getId(), diagram));
+                }
             }
         }
         return result;
