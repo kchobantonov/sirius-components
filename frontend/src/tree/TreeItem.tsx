@@ -49,16 +49,6 @@ const renameTreeItemMutation = gql`
 // The list of characters that will enable the direct edit mechanism.
 const directEditActivationValidCharacters = /[\w&é§èàùçÔØÁÛÊË"«»’”„´$¥€£\\¿?!=+-,;:%/{}[\]–#@*.]/;
 
-/**
- * Determines where the context menu should open relative to the actual mouse position.
- * These are relative to the bottom-left corner of the "more" icon, and to the size of the
- * caret, so that the caret at the left of the menu points to the middle of the "more" icon.
- */
-const menuPositionDelta = {
-  dx: 20,
-  dy: -6,
-};
-
 const ItemCollapseToggle = ({ item, depth, onExpand }) => {
   if (item.hasChildren) {
     const onClick = () => onExpand(item.id, depth);
@@ -100,15 +90,15 @@ export const TreeItem = ({
 }: TreeItemProps) => {
   const initialState = {
     modalDisplayed: null,
-    x: 0,
-    y: 0,
     showContextMenu: false,
+    menuAnchor: null,
     editingMode: false,
     label: item.label,
     prevSelectionId: null,
   };
   const [state, setState] = useState(initialState);
-  const { x, y, showContextMenu, modalDisplayed, editingMode, label } = state;
+  const { showContextMenu, menuAnchor, modalDisplayed, editingMode, label } = state;
+
   const refDom = useRef() as any;
 
   const [deleteTreeItem] = useMutation(deleteTreeItemMutation);
@@ -145,14 +135,12 @@ export const TreeItem = ({
 
   // Context menu handling
   const openContextMenu = (event) => {
-    const { x, y } = event.currentTarget.getBoundingClientRect();
     if (!showContextMenu) {
       setState((prevState) => {
         return {
           modalDisplayed: prevState.modalDisplayed,
-          x: x + menuPositionDelta.dx,
-          y: y + menuPositionDelta.dy,
           showContextMenu: true,
+          menuAnchor: event.currentTarget,
           editingMode: false,
           label: item.label,
           prevSelectionId: prevState.prevSelectionId,
@@ -167,9 +155,8 @@ export const TreeItem = ({
       setState((prevState) => {
         return {
           modalDisplayed: null,
-          x: 0,
-          y: 0,
           showContextMenu: false,
+          menuAnchor: null,
           editingMode: false,
           label: item.label,
           prevSelectionId: prevState.prevSelectionId,
@@ -180,9 +167,8 @@ export const TreeItem = ({
       setState((prevState) => {
         return {
           modalDisplayed: null,
-          x: 0,
-          y: 0,
           showContextMenu: false,
+          menuAnchor: null,
           editingMode: true,
           label: item.label,
           prevSelectionId: prevState.prevSelectionId,
@@ -193,9 +179,8 @@ export const TreeItem = ({
       setState((prevState) => {
         return {
           modalDisplayed: modalName,
-          x: 0,
-          y: 0,
           showContextMenu: false,
+          menuAnchor: null,
           editingMode: false,
           label: item.label,
           prevSelectionId: prevState.prevSelectionId,
@@ -217,8 +202,7 @@ export const TreeItem = ({
 
     contextMenu = (
       <TreeItemContextMenu
-        x={x}
-        y={y}
+        menuAnchor={menuAnchor}
         item={item}
         editingContextId={editingContextId}
         readOnly={readOnly}
@@ -236,9 +220,8 @@ export const TreeItem = ({
     setState((prevState) => {
       return {
         modalDisplayed: null,
-        x: 0,
-        y: 0,
         showContextMenu: false,
+        menuAnchor: null,
         editingMode: false,
         label: item.label,
         prevSelectionId: prevState.prevSelectionId,
@@ -339,7 +322,7 @@ export const TreeItem = ({
     const onFocusIn = (event) => {
       event.target.select();
     };
-    const onFocusOut = (event) => {
+    const onFocusOut = (event: FocusEvent) => {
       doRename();
     };
     text = (

@@ -10,6 +10,7 @@
  * Contributors:
  *     Obeo - initial API and implementation
  *******************************************************************************/
+import { ClassNameMap } from '@material-ui/core/styles/withStyles';
 import React from 'react';
 import { TreeItemType } from './TreeItem.types';
 
@@ -23,7 +24,8 @@ export interface TreeItemHandler {
     editingContextId: string,
     readOnly: boolean,
     openModal: (modalName: string) => void,
-    closeContextMenu: () => void
+    closeContextMenu: () => void,
+    classes: ClassNameMap<'item'>
   ) => Array<any>;
 }
 

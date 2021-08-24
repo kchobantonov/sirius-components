@@ -10,13 +10,24 @@
  * Contributors:
  *     Obeo - initial API and implementation
  *******************************************************************************/
-import { ContextMenu, Entry, LEFT_START, Separator } from 'core/contextmenu/ContextMenu';
-import { Delete, Edit } from 'icons';
+import { makeStyles } from '@material-ui/core';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
+import DeleteIcon from '@material-ui/icons/Delete';
+import EditIcon from '@material-ui/icons/Edit';
 import React from 'react';
 
+const useTreeItemDocumentContextMenuStyles = makeStyles((theme) => ({
+  item: {
+    paddingTop: theme.spacing(0),
+    paddingBottom: theme.spacing(0),
+  },
+}));
+
 export const TreeItemContextMenu = ({
-  x,
-  y,
+  menuAnchor,
   item,
   editingContextId,
   readOnly,
@@ -26,40 +37,62 @@ export const TreeItemContextMenu = ({
   closeContextMenu,
   treeItemHandler,
 }) => {
+  const classes = useTreeItemDocumentContextMenuStyles();
   const entries = [];
   // Creation operations (type-specific)
   treeItemHandler
-    .getMenuEntries(item, editingContextId, readOnly, openModal, closeContextMenu)
+    .getMenuEntries(item, editingContextId, readOnly, openModal, closeContextMenu, classes)
     .forEach((entry) => entries.push(entry));
-  if (entries.length > 0) {
-    entries.push(<Separator />);
-  }
+
   // Generic edition operations
   if (item.editable) {
     entries.push(
-      <Entry
-        icon={<Edit title="" />}
-        label="Rename"
+      <MenuItem
+        key="rename-tree-item"
         onClick={enterEditingMode}
         data-testid="rename-tree-item"
-        disabled={readOnly}></Entry>
+        disabled={readOnly}
+        dense
+        className={classes.item}>
+        <ListItemIcon>
+          <EditIcon fontSize="small" />
+        </ListItemIcon>
+        <ListItemText primary="Rename" />
+      </MenuItem>
     );
   }
   if (item.deletable) {
     entries.push(
-      <Entry
-        icon={<Delete title="" />}
-        label="Delete"
+      <MenuItem
+        key="delete-tree-item"
         onClick={deleteItem}
         data-testid="delete-tree-item"
         disabled={readOnly}
-      />
+        dense
+        className={classes.item}>
+        <ListItemIcon>
+          <DeleteIcon fontSize="small" />
+        </ListItemIcon>
+        <ListItemText primary="Delete" />
+      </MenuItem>
     );
   }
 
   return (
-    <ContextMenu x={x} y={y} caretPosition={LEFT_START} onClose={closeContextMenu} data-testid="treeitem-contextmenu">
+    <Menu
+      id="treeitem-contextmenu"
+      anchorEl={menuAnchor}
+      keepMounted
+      open
+      onClose={closeContextMenu}
+      data-testid="treeitemdocument-contextmenu"
+      disableRestoreFocus={true}
+      getContentAnchorEl={null}
+      anchorOrigin={{
+        vertical: 'bottom',
+        horizontal: 'right',
+      }}>
       {entries}
-    </ContextMenu>
+    </Menu>
   );
 };
