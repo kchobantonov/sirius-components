@@ -10,7 +10,7 @@
  * Contributors:
  *     Obeo - initial API and implementation
  *******************************************************************************/
-import { makeStyles } from '@material-ui/core';
+import { Divider, makeStyles } from '@material-ui/core';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Menu from '@material-ui/core/Menu';
@@ -43,7 +43,9 @@ export const TreeItemContextMenu = ({
   treeItemHandler
     .getMenuEntries(item, editingContextId, readOnly, openModal, closeContextMenu, classes)
     .forEach((entry) => entries.push(entry));
-
+  if (entries.length > 0) {
+    entries.push(<Divider key="custom-entries-end" />);
+  }
   // Generic edition operations
   if (item.editable) {
     entries.push(
