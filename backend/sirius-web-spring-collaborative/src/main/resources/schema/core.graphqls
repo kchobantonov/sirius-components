@@ -21,6 +21,8 @@ type EditingContext {
   rootObjectCreationDescriptions(domainId: ID!, suggested: Boolean!): [ChildCreationDescription!]!
   childCreationDescriptions(classId: ID!): [ChildCreationDescription!]!
   queryBasedInt(query: String!): Int
+  queryBasedObject(query: String!): Object
+  queryBasedObjects(query: String!): [Object]
 }
 
 type Domain {
@@ -150,6 +152,7 @@ type Object {
   id: ID!
   kind: String!
   label: String!
+  queryBasedInt(query: String!): Int
 }
 
 input CreateChildInput {

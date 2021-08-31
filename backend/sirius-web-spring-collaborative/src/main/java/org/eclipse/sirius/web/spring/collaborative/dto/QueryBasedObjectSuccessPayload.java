@@ -19,17 +19,17 @@ import java.util.UUID;
 import org.eclipse.sirius.web.core.api.IPayload;
 
 /**
- * The payload of the queryBasedInt query.
+ * The payload of the queryBasedObject query.
  *
  * @author fbarbin
  */
-public final class QueryBasedIntSuccessPayload implements IPayload {
+public final class QueryBasedObjectSuccessPayload implements IPayload {
 
     private final UUID id;
 
-    private final Integer result;
+    private final Object result;
 
-    public QueryBasedIntSuccessPayload(UUID id, Integer result) {
+    public QueryBasedObjectSuccessPayload(UUID id, Object result) {
         this.id = Objects.requireNonNull(id);
         this.result = Objects.requireNonNull(result);
     }
@@ -39,7 +39,7 @@ public final class QueryBasedIntSuccessPayload implements IPayload {
         return this.id;
     }
 
-    public Integer getResult() {
+    public Object getResult() {
         return this.result;
     }
 

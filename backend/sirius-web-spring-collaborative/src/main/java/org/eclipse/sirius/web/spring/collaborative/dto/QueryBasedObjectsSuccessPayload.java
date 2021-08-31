@@ -13,23 +13,24 @@
 package org.eclipse.sirius.web.spring.collaborative.dto;
 
 import java.text.MessageFormat;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 import org.eclipse.sirius.web.core.api.IPayload;
 
 /**
- * The payload of the queryBasedInt query.
+ * The payload of the queryBasedObject query.
  *
  * @author fbarbin
  */
-public final class QueryBasedIntSuccessPayload implements IPayload {
+public final class QueryBasedObjectsSuccessPayload implements IPayload {
 
     private final UUID id;
 
-    private final Integer result;
+    private final List<Object> result;
 
-    public QueryBasedIntSuccessPayload(UUID id, Integer result) {
+    public QueryBasedObjectsSuccessPayload(UUID id, List<Object> result) {
         this.id = Objects.requireNonNull(id);
         this.result = Objects.requireNonNull(result);
     }
@@ -39,7 +40,7 @@ public final class QueryBasedIntSuccessPayload implements IPayload {
         return this.id;
     }
 
-    public Integer getResult() {
+    public List<Object> getResult() {
         return this.result;
     }
 

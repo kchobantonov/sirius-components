@@ -38,7 +38,7 @@ public class QueryBasedIntEventHandlerTests {
 
     @Test
     public void testQueryBasedInt() {
-        IQueryService queryService = new IQueryService() {
+        IQueryService queryService = new IQueryService.NoOp() {
 
             @Override
             public IPayload execute(IEditingContext editingContext, QueryBasedIntInput input) {
@@ -53,7 +53,7 @@ public class QueryBasedIntEventHandlerTests {
 
     @Test
     public void testQueryBasedIntFailed() {
-        IQueryService queryService = new IQueryService() {
+        IQueryService queryService = new IQueryService.NoOp() {
             @Override
             public IPayload execute(IEditingContext editingContext, QueryBasedIntInput input) {
                 return new ErrorPayload(UUID.randomUUID(), "An error occured"); //$NON-NLS-1$
